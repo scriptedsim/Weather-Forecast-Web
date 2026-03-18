@@ -1,22 +1,30 @@
 import streamlit as st
 import plotly.express as px
+from backend import get_data
 
 st.title("Weather Forecast For The Next Days")
 
 place = st.text_input(label="Place:")
-days = st.slider(min_value=1, max_value=5, step=1, label="Forecast days:", help="Select the number of forecast days")
-data = st.selectbox(label="Select data to view",options=("Temperature", "Sky"))
+forecast_days = st.slider(min_value=1, max_value=5, step=1, label="Forecast days:", help="Select the number of forecast days")
+kind = st.selectbox(label="Select data to view",options=("Temperature", "Sky"))
 
-st.subheader(f"{data} for the next {days} days in {place}")
+st.subheader(f"{kind} for the next {forecast_days} days in {place}")
 
-def get_data(days):
-    dates = ["2025-03-15", "2025-03-16", "2025-03-17"]
-    temperatures = [10, 11, 20]
-    temperatures = [days * i for i in temperatures]
-    return dates, temperatures
+if place:
+    filtered_data = get_data(place, forecast_days)
 
-d, t= get_data(days)
+    if kind == "Temperature":
+        temperature = [dict["main"]["temp"] for dict in filtered_data]
+        dates = [dict["dt_txt"] for dict in filtered_data]
+        figure = px.line(x=dates, y=temperature, labels={"x":"Dates", "y":"Temperatures"})
+        st.plotly_chart(figure)
+
+    if kind == "Sky":
+        images = {"Clear":"images/clear.png", "Clouds":"images/cloud.png", "Rain":"images/rain.png", "Snow":"images/snow.png"}
+        sky = [dict["weather"][0]["main"] for dict in filtered_data]
+        image_url = [images[condition] for condition in sky]
+        st.image(image_url, width=115)
 
 
-figure = px.line(x=d, y=t, labels={"x":"Dates", "y":"Temperatures"})
-st.plotly_chart(figure)
+    
+    
