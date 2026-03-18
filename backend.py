@@ -10,6 +10,14 @@ def get_data(place, forecast_days):
     nr_values = 8 * forecast_days
     filtered_data = filtered_data[:nr_values]
     return filtered_data
+
+def place_data():
+    url = f"http://api.openweathermap.org/data/2.5/forecast?q={place}&appid={APIkey}"
+    response = requests.get(url)
+    data_1 = response.json()
+    place = data_1["city"]["name"]
+    return place
+
     
 if __name__=="__main__":
     print(get_data("Tokyo", forecast_days=5))
